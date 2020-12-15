@@ -63,9 +63,9 @@ def upload_base64_file():
       im = Image.open(BytesIO(base64.b64decode(img_data)))
       im,person_num,boxes,scores, classes, nums ,class_names= image.main(im,model)
       im = Image.fromarray(im)
-
-      im.save(im_file, format="webp")
-      im_bytes = im_file.getvalue()  # im_bytes: image in binary format.
+      buffered = BytesIO()
+      im.save(buffered, format="webp")
+      im_bytes = buffered.getvalue()  # im_bytes: image in binary format.
       im_b64 = base64.b64encode(im_bytes)
       im_b64 = "data:image/webp;base64," + (str(im_b64).replace("b'","")[:-1])
 
