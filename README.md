@@ -5,7 +5,7 @@ This work is based upon the work done by [Zihao Zhang ](https://github.com/zzh88
 ## What is YOLO?
 You only look once (YOLO) is a state-of-the-art, real-time object detection system. 
 On a Pascal Titan X it processes images at 30 FPS and has a mAP of 57.9% on COCO test-dev.
-YOLO v3 is the third iteration of the YOLO algorithm implemented in Darknet [(view the originalDocumentation)] (https://pjreddie.com/darknet/yolo/)
+YOLO v3 is the third iteration of the YOLO algorithm implemented in Darknet[View the original documentation ](https://pjreddie.com/darknet/yolo).
 ## How does it work ?
 basically the backend (in flask) contains our model and the frontend is the client side that we use to implement the algorithm.
 The system sends either a screenshot using the user's camera or a picture uploaded by the user.
@@ -21,8 +21,8 @@ python app.py
 Then open the index.html file in the client side folder in your browser
 ## Detection
 You Have two options either to use the webcam or upload your image
-[](imgs/layout.png)
+[Layout ](imgs/layout.png)
 ## Results
-[](imgs/example.jpg)
-[](imgs/res.jpg)
-[](imgs/layout-res.png)
+[Example ](imgs/example.jpg)
+[Result ](imgs/res.jpg)
+[Result](imgs/layout-res.png)
