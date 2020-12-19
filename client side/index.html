@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <title>People Counter</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-light" style="background-color: #c4c722;">
+      <div class="container-fluid">
+        <span class="navbar-text" style="color: black;">
+          People Counter
+        </span>
+      </div>
+    </nav>
+    <br>
+    <div class="container">
+      <div class="row d-block">
+        <h1>The People Counting API</h1>
+        <p>Perform object detection and People Counting Using the Yolov3 Model</p>
+        <p>Upload your Image or take one using the webcam</p>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-sm" id="webcam">
+            <video autoplay id="media" class="rounded mx-auto d-block"></video>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm">
+            <img id="screenshot_res" class="rounded mx-auto d-block" style="display: none;" src="">
+            <!-- <img id="displayer" class="rounded mx-auto d-block" style="max-width: 600;" src=""> -->
+            <canvas style="display:none;"></canvas>
+          </div>
+        </div>
+      </div>
+      <br>
+      <div class="container">
+        <div class="row">
+          <div class="col-sm">
+            <input id="upload"  accept="image/*"  onchange="upload_img(event)" type='file' class="btn btn-light rounded mx-auto d-block" style="background-color: #c4c722;"/>
+          </div>
+          <!-- <div class="col-sm">
+            <button class="btn btn-light rounded mx-auto d-block" style="background-color: #c4c722;" id="upload">Detect(Uploaded)</button>
+          </div> -->
+          <div class="col-sm">
+            <button class="btn btn-light rounded mx-auto d-block" style="background-color: #c4c722;" id="capture">Capture(Video)</button>
+          </div>
+          <div class="col-sm">
+            <button class="btn btn-light rounded mx-auto d-block" style="background-color: #c4c722;" id="screenshot">Detect(Webcam)</button>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-sm">
+            <h1>Number of People in this image:</h1>
+            <h2 id="person_num"></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+  const captureVideoButton = document.querySelector("#capture");
+  // const uploadimg = document.querySelector("#upload");
+  const screenshotButton = document.querySelector("#screenshot");
+  const img = document.querySelector("#screenshot_res");
+  // const res = document.querySelector("#displayer");
+
+  const video = document.querySelector("#media");
+  const canvas = document.createElement("canvas");
+  const vgaConstraints = {
+    video: { width: { exact: 640 }, height: { exact: 480 } },
+  };
+  captureVideoButton.onclick = function () {
+    navigator.mediaDevices
+      .getUserMedia(vgaConstraints)
+      .then(handleSuccess)
+      .catch(handleError);
+  };
+  function upload_img(event){
+    var reader = new FileReader();
+    reader.onload = function(){
+     // console.log(reader.result);
+     // res.src = reader.result;
+     img.src = reader.result;
+
+     let canvas = document.createElement('canvas');
+     canvas.width = img.width;
+     canvas.height = img.height;
+     canvas.getContext("2d").drawImage(img, 0, 0);
+     imgsrc = canvas.toDataURL("image/webp");
+     // img.style.display = "none";
+     console.log(imgsrc);
+     var xhr = new XMLHttpRequest();
+     xhr.open("POST", "http://0.0.0.0:5000/upload", true);
+     xhr.setRequestHeader('Content-Type', 'application/json');
+     xhr.setRequestHeader('Access-Control-Allow-Origin','*');
+     xhr.responseType = 'json';
+     xhr.send(JSON.stringify({
+         img: imgsrc
+     }));
+     xhr.onload = function() {
+       var body = xhr.response;
+       // console.log(body);
+       img.src = body.img;
+       person_num = body.person_num;
+       document.getElementById("person_num").textContent = person_num;
+     };
+    }
+    reader.readAsDataURL(event.target.files[0]);
+
+  }
+
+  screenshotButton.onclick = video.onclick = function() {
+    img.src = null;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0);
+    // Other browsers will fall back to image/png
+    imgsrc = canvas.toDataURL("image/webp");
+    // img.style.display = "none";
+    // console.log(img.src)
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://0.0.0.0:5000/upload", true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('Access-Control-Allow-Origin','*');
+    xhr.responseType = 'json';
+    xhr.send(JSON.stringify({
+        img: imgsrc
+    }));
+    xhr.onload = function() {
+      var body = xhr.response;
+      // console.log(body);
+      img.src = body.img;
+      person_num = body.person_num;
+      document.getElementById("person_num").textContent = person_num;
+    };
+  };
+
+  function draw_outputs(boxes, scores, classes, nums, class_names){
+    var i;
+    for (i = 0; i < nums; i++){
+      const webcamElem = document.getElementById('webcam');
+      const rect = document.createElement('div');
+      rect.classList.add('rect');
+      x1 = boxes[i][0] * 640;
+      y1 = boxes[i][1] * 480;
+      x2 = boxes[i][2] * 640;
+      y2 = boxes[i][3] * 480;
+      rect.style.cssText = `top: ${y1}; left: ${x1}; width: ${x2}; height: ${y2}; border-color: 'red'`;
+
+      const label = document.createElement('div');
+      label.classList.add('label');
+      label.innerText = class_names[classes[i]];
+      rect.appendChild(label);
+
+      webcamElem.appendChild(rect);
+    }
+  }
+
+  function handleSuccess(stream) {
+    screenshotButton.disabled = false;
+    video.srcObject = stream;
+    img.src = null;
+  }
+  function handleError(){
+    console.log("Error");
+  }
+  </script>
+</html>
