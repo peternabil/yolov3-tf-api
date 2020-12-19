@@ -21,8 +21,8 @@ python app.py
 Then open the index.html file in the client side folder in your browser
 ## Detection
 You Have two options either to use the webcam or upload your image
-[Layout ](imgs/layout.png)
+![Layout ](imgs/layout.png)
 ## Results
-[Example ](imgs/example.jpg)
-[Result ](imgs/res.jpg)
-[Result](imgs/layout-res.png)
+![](imgs/example.jpg)
+![](imgs/res.jpg)
+![](imgs/layout-res.png)
